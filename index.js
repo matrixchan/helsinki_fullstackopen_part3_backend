@@ -1,5 +1,7 @@
 const express = require('express');
 const app = express();
+const cors = require('cors');
+const morgan = require('morgan');
 
 let persons = [
   {
@@ -30,6 +32,19 @@ const generateId = () => {
 };
 
 app.use(express.json());
+morgan.token('postData', (req) => {
+  if (req.method === 'POST') {
+    return JSON.stringify(req.body);
+  }
+  return '-';
+});
+app.use(cors());
+
+app.use(
+  morgan(
+    ':method :url :status :res[content-length] - :response-time ms :postData'
+  )
+);
 
 app.get('/info', (request, response) => {
   let currentDate = new Date();
@@ -88,6 +103,11 @@ app.post('/api/persons', (request, response) => {
   persons = persons.concat(person);
   response.json(person);
 });
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' });
+};
+app.use(unknownEndpoint);
 
 const PORT = 3001;
 app.listen(PORT, () => {
