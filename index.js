@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -110,6 +111,10 @@ const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' });
 };
 app.use(unknownEndpoint);
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
 
 const PORT = 3001;
 app.listen(PORT, () => {
