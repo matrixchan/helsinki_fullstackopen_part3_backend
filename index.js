@@ -127,6 +127,32 @@ app.post('/api/persons', async (request, response, next) => {
   }
 });
 
+app.put('/api/persons/:id', async (request, response, next) => {
+  const { id } = request.params;
+  const { name, number } = request.body;
+
+  if (!name || !number) {
+    return response.status(400).json({
+      error: 'Name and number are required',
+    });
+  }
+
+  try {
+    const updatedPerson = await Person.findByIdAndUpdate(
+      id,
+      { name, number },
+      { new: true, runValidators: true, context: 'query' }
+    );
+
+    if (updatedPerson) {
+      response.json(updatedPerson);
+    } else {
+      response.status(404).json({ error: 'Person not found' });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
 app.use(unknownEndpoint);
 
 const errorHandler = (error, request, response, next) => {
